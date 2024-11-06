@@ -55,3 +55,17 @@ class Book_Author(BaseModel):
             CompositeKey('id_carte', 'id_autor')
         ]
         db_table = "carte_autor"
+
+class Bookmark(BaseModel):
+    id_carte = ForeignKeyField(
+        Book,
+        backref='carti',
+        on_delete='CASCADE',
+        column_name='id_carte'
+    )
+
+    pagina_default = IntegerField()
+    pagina_user = IntegerField()
+
+    class Meta:
+        db_table = "bookmarks"

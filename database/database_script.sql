@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS carti (
     is_disabled BOOLEAN
 );
 
-INSERT INTO carti (nume, nr_pagini, gen, editura, descriere, cale_fisier, cale_poza, is_disabled) VALUES 
-    ("Fire and Blood", 736, "Fantasy", "HarperCollins", "A song of Ice and Fire", "/", "/", 0);
+--INSERT INTO carti (nume, nr_pagini, gen, editura, descriere, cale_fisier, cale_poza, is_disabled) VALUES 
+--   ("Fire and Blood", 736, "Fantasy", "HarperCollins", "A song of Ice and Fire", "/", "/", 0);
 
 -- tabel autor
 CREATE TABLE IF NOT EXISTS autori (
@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS autori (
     descriere VARCHAR(2000)
 );
 
-INSERT INTO autori (nume, descriere) VALUES 
-    ("George R.R Martin", "Autor american de fantasy, horror, science fiction.");
+--INSERT INTO autori (nume, descriere) VALUES 
+--    ("George R.R Martin", "Autor american de fantasy, horror, science fiction.");
 
 -- tabel carte_autor
 CREATE TABLE IF NOT EXISTS carte_autor (
@@ -34,5 +34,12 @@ CREATE TABLE IF NOT EXISTS carte_autor (
     FOREIGN KEY (id_autor) REFERENCES autori(id) ON DELETE CASCADE
 );
 
-INSERT INTO carte_autor (id_carte, id_autor) VALUES 
-    (1, 1);
+--INSERT INTO carte_autor (id_carte, id_autor) VALUES 
+--    (1, 1);
+
+CREATE TABLE IF NOT EXISTS bookmarks (
+    id_carte int PRIMARY KEY,
+    pagina_default int,
+    pagina_user int,
+    FOREIGN KEY (id_carte) REFERENCES carti(id) ON DELETE CASCADE
+)
