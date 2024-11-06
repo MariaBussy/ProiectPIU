@@ -18,7 +18,7 @@ class Book(BaseModel):
     nr_pagini = IntegerField(null=False)
     gen = CharField(max_length=255, null=False)
     editura = CharField(max_length=255, null=False)
-    descriere = CharField(max_length=2000, null=False)
+    descriere = CharField(max_length=4000, null=False)
     cale_fisier = CharField(max_length=255)
     cale_poza = CharField(max_length=255)
     is_disabled = BooleanField(null=False)
@@ -29,7 +29,7 @@ class Book(BaseModel):
 class Author(BaseModel):
     id = IntegerField(primary_key=True)
     nume = CharField(max_length=255, null=False)
-    descriere = CharField(max_length=2000)
+    descriere = CharField(max_length=4000)
     
     class Meta:
         db_table = "autori"
