@@ -22,3 +22,23 @@ def get_author(id: int) -> dict:
     if author is None:
         return None
     return model_to_dict(author)
+
+"""
+Inserts an author in db.
+"""
+def insert_author(author: dict):
+    try:
+        inserted_author = inserted_author.create(**author)
+        return model_to_dict(author)
+    except Exception as e:
+        print("[Error]", e)
+        return None
+
+"""
+Deletes an author from d.
+"""
+def delete_author(id: int):
+    if not Author.select().where(Author.id == id).exists():
+        return "Nu exista aceast autor."
+
+    return Author.delete().where(Author.id == id).execute()
