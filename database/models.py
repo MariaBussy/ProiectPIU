@@ -3,10 +3,12 @@
 
 from peewee import (
     Model, IntegerField, CharField, BooleanField, ForeignKeyField,
-    CompositeKey
+    CompositeKey, SqliteDatabase
 )
 
-from database.database import db
+#from database.database import db
+
+db = SqliteDatabase('database.db')
 
 class BaseModel(Model):
     class Meta:
@@ -50,11 +52,9 @@ class Book_Author(BaseModel):
     )
 
     class Meta:
-        primary_key = False
-        constraints = [
-            CompositeKey('id_carte', 'id_autor')
-        ]
+        primary_key = CompositeKey('id_carte', 'id_autor')
         db_table = "carte_autor"
+
 
 class Bookmark(BaseModel):
     id_carte = ForeignKeyField(
@@ -69,3 +69,6 @@ class Bookmark(BaseModel):
 
     class Meta:
         db_table = "bookmarks"
+
+db.connect()
+db.create_tables([Book, Author, Book_Author, Bookmark])

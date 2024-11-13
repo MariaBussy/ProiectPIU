@@ -10,5 +10,7 @@ def get_bookmark(id: int) -> dict:
         return None
     
     bookmark = Bookmark.select().where(Bookmark.id == id).first()
+    if bookmark is None:
+        return None
+    
     return model_to_dict(bookmark)
-

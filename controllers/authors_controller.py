@@ -7,6 +7,8 @@ SELECT * FROM authors;
 """
 def get_authors() -> list:
     authors = Author.select()
+    if authors is None:
+        return None
     return [model_to_dict(author) for author in authors]
 
 """
@@ -17,4 +19,6 @@ def get_author(id: int) -> dict:
         return None
     
     author = Author.select().where(Author.id == id).first()
+    if author is None:
+        return None
     return model_to_dict(author)
