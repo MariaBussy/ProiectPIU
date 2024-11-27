@@ -1,19 +1,14 @@
-
-from database.models import *
-from playhouse.shortcuts import model_to_dict
+import sys
+from database.models import Book
+from controllers.authors_controller import *
+from controllers.books_controller import *
+from controllers.bookmarks_controller import *
+from interface.ui_app import create_app
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget
 
 if __name__ == "__main__":
-    autori = Author.select()
+    print("Autori: ", get_authors())
+    print("Carti: ", get_books())
+    app = create_app()
+    sys.exit(app.exec_())
 
-    for autor in autori:
-        print(model_to_dict(autor))
-
-    carti = Book.select()
-
-    for carte in carti:
-        print(model_to_dict(carte))
-
-    joins = Book_Author.select()
-
-    for join in joins:
-        print(model_to_dict(join, recurse=False))
