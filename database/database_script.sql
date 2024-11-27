@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS carti (
     nr_pagini int NOT NULL,
     gen VARCHAR(255) NOT NULL,
     editura VARCHAR(255) NOT NULL,
-    descriere VARCHAR(2000),
+    descriere VARCHAR(4000),
     cale_fisier VARCHAR(255),
     cale_poza VARCHAR(255),
     is_disabled BOOLEAN
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS carti (
 CREATE TABLE IF NOT EXISTS autori (
     id int AUTO_INCREMENT PRIMARY KEY,
     nume VARCHAR(255) NOT NULL,
-    descriere VARCHAR(2000)
+    descriere VARCHAR(4000)
 );
 
 --INSERT INTO autori (nume, descriere) VALUES 

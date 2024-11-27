@@ -1,19 +1,8 @@
-
-from database.models import *
-from playhouse.shortcuts import model_to_dict
+from database.models import Book
+from controllers.authors_controller import *
+from controllers.books_controller import *
+from controllers.bookmarks_controller import *
 
 if __name__ == "__main__":
-    autori = Author.select()
-
-    for autor in autori:
-        print(model_to_dict(autor))
-
-    carti = Book.select()
-
-    for carte in carti:
-        print(model_to_dict(carte))
-
-    joins = Book_Author.select()
-
-    for join in joins:
-        print(model_to_dict(join, recurse=False))
+    print("Autori: ", get_authors())
+    print("Carti: ", get_books())
