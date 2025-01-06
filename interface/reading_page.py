@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout, QSpacerItem, QSizePolicy
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout, QSizePolicy
 from PyQt5.QtCore import Qt
 
 class BookReaderApp(QWidget):
@@ -40,27 +40,29 @@ class BookReaderApp(QWidget):
         self.end_button.clicked.connect(self.show_end)
         self.bookmark_button.clicked.connect(self.add_bookmark)
 
-        # Layout for the buttons
-        button_layout = QHBoxLayout()
-        button_layout.addWidget(self.prev_button)
-        button_layout.addWidget(self.home_button)
-        button_layout.addWidget(self.bookmark_button)
-        button_layout.addWidget(self.end_button)
-        button_layout.addWidget(self.next_button)
+        # Layout for the buttons on the left (Previous and Home)
+        left_button_layout = QVBoxLayout()
+        left_button_layout.addWidget(self.prev_button)
+        left_button_layout.addWidget(self.home_button)
+
+        # Layout for the buttons on the right (Bookmark, End, and Next)
+        right_button_layout = QVBoxLayout()
+        right_button_layout.addWidget(self.bookmark_button)
+        right_button_layout.addWidget(self.end_button)
+        right_button_layout.addWidget(self.next_button)
 
         # Main layout for the window
         main_layout = QVBoxLayout()
 
         # Create a horizontal layout for centering the text area horizontally
         horizontal_layout = QHBoxLayout()
-        horizontal_layout.addWidget(self.text_area)
-        horizontal_layout.setAlignment(Qt.AlignHCenter)  # Center the text area horizontally
+        horizontal_layout.addLayout(left_button_layout)  # Add left buttons
+        horizontal_layout.addWidget(self.text_area)     # Add the text area in the middle
+        horizontal_layout.addLayout(right_button_layout)  # Add right buttons
+        horizontal_layout.setAlignment(Qt.AlignCenter)  # Center the content horizontally
 
         # Add the horizontal layout to the main layout
-        main_layout.addLayout(horizontal_layout)  # Add the horizontal layout to the main layout
-
-        # Add the button layout at the bottom
-        main_layout.addLayout(button_layout)
+        main_layout.addLayout(horizontal_layout)
 
         self.setLayout(main_layout)
 
