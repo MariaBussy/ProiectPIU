@@ -23,7 +23,7 @@ class BookReaderApp(QWidget):
         self.text_area = QTextEdit(self)
         self.text_area.setReadOnly(True)
         self.text_area.setText(self.pages[self.current_page])
-        self.text_area.setFixedWidth(600)  # Set fixed width for the text area
+        # Set the text area to have flexible size policy
         self.text_area.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         # Create the buttons (Previous, Next, Home, End, Bookmark)
@@ -51,14 +51,13 @@ class BookReaderApp(QWidget):
         # Main layout for the window
         main_layout = QVBoxLayout()
 
-        # Spacer to push the text area to the top
-        top_spacer = QSpacerItem(20, 100, QSizePolicy.Minimum, QSizePolicy.Expanding)  # Adjust space for top
-        bottom_spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)  # Space at the bottom
+        # Create a horizontal layout for centering the text area horizontally
+        horizontal_layout = QHBoxLayout()
+        horizontal_layout.addWidget(self.text_area)
+        horizontal_layout.setAlignment(Qt.AlignHCenter)  # Center the text area horizontally
 
-        # Center the text area horizontally and place it near the top
-        main_layout.addItem(top_spacer)
-        main_layout.addWidget(self.text_area, alignment=Qt.AlignHCenter)  # Center text area horizontally
-        main_layout.addItem(bottom_spacer)
+        # Add the horizontal layout to the main layout
+        main_layout.addLayout(horizontal_layout)  # Add the horizontal layout to the main layout
 
         # Add the button layout at the bottom
         main_layout.addLayout(button_layout)
