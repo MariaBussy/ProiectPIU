@@ -1,10 +1,56 @@
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout,
-    QWidget, QScrollArea, QFrame, QPushButton
+    QWidget, QScrollArea, QFrame, QPushButton, QDialog, QLineEdit, QComboBox
 )
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 import sys
+from target.target import update_goal, validate_time_input, get_current_goal
+
+class GoalPopup(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Set Reading Goal")
+        self.setGeometry(200, 200, 300, 200)
+
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+
+        self.goal_type_label = QLabel("Goal Type:")
+        self.goal_type_combo = QComboBox()
+        self.goal_type_combo.addItems(["Time", "Pages"])
+
+        self.frequency_label = QLabel("Frequency:")
+        self.frequency_combo = QComboBox()
+        self.frequency_combo.addItems(["Day", "Month"])
+
+        self.value_label = QLabel("Value:")
+        self.value_input = QLineEdit()
+        self.value_input.setPlaceholderText("Enter minutes or pages")
+
+        self.save_button = QPushButton("Save Goal")
+        self.save_button.clicked.connect(self.save_goal)
+
+        self.layout.addWidget(self.goal_type_label)
+        self.layout.addWidget(self.goal_type_combo)
+        self.layout.addWidget(self.frequency_label)
+        self.layout.addWidget(self.frequency_combo)
+        self.layout.addWidget(self.value_label)
+        self.layout.addWidget(self.value_input)
+        self.layout.addWidget(self.save_button)
+
+    def save_goal(self):
+        goal_type = self.goal_type_combo.currentText().lower()
+        frequency = self.frequency_combo.currentText().lower()
+        value = self.value_input.text()
+
+        try:
+            validated_value = validate_time_input(value)
+            message = update_goal(goal_type, frequency, validated_value)
+            self.parent().update_goal_display()  
+            self.close()  
+        except ValueError as e:
+            self.parent().show_message(str(e))  
 
 class MyMainWindow(QMainWindow):
     def __init__(self):
@@ -20,7 +66,7 @@ class MyMainWindow(QMainWindow):
                 background-color: #f7f5f8;
             }
         """)
-        
+
         self.main_layout = QVBoxLayout()
         central_widget = QWidget()
         central_widget.setLayout(self.main_layout)
@@ -40,6 +86,8 @@ class MyMainWindow(QMainWindow):
         self.recommendations_section = self.create_horizontal_section("You may enjoy...", 8)
         self.main_layout.addWidget(self.recommendations_section)
 
+        self.update_goal_display()
+
         self.current_section = None
 
     def create_horizontal_section(self, title, num_items):
@@ -47,7 +95,7 @@ class MyMainWindow(QMainWindow):
         section_title = QLabel(title)
         section_title.setFont(QFont("Arial", 16))
         section_layout.addWidget(section_title)
-        
+
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_content = QWidget()
@@ -72,30 +120,76 @@ class MyMainWindow(QMainWindow):
     def create_reading_goal_section(self):
         goal_widget = QWidget()
         goal_layout = QVBoxLayout(goal_widget)
-        goal_label = QLabel("Today's Reading")
+        goal_label = QLabel("Your Goal")
         goal_label.setFont(QFont("Arial", 16))
         goal_label.setAlignment(Qt.AlignCenter)
         goal_layout.addWidget(goal_label)
 
-        goal_time = QLabel("0:00")
-        goal_time.setFont(QFont("Arial", 32))
-        goal_time.setAlignment(Qt.AlignCenter)
-        goal_layout.addWidget(goal_time)
+        self.goal_time = QLabel("0:00")
+        self.goal_time.setFont(QFont("Arial", 32))
+        self.goal_time.setAlignment(Qt.AlignCenter)
+        goal_layout.addWidget(self.goal_time)
 
-        goal_subtext = QLabel("of your 5-minute goal")
-        goal_subtext.setFont(QFont("Arial", 14))
-        goal_subtext.setAlignment(Qt.AlignCenter)
-        goal_layout.addWidget(goal_subtext)
+        set_goal_button = QPushButton("Set Goal")
+        set_goal_button.clicked.connect(self.open_goal_popup)
+        goal_layout.addWidget(set_goal_button)
 
         goal_layout.setAlignment(Qt.AlignCenter)
         return goal_widget
+
+    def update_goal_display(self):
+        """Update the goal details displayed in the UI."""
+        goal = get_current_goal()
+        if goal:
+            goal_type = goal["goal_type"].capitalize()
+            frequency = goal["frequency"].capitalize()
+            value = goal["value"]
+            created_at = goal["created_at"]
+            if goal_type == "Time":
+                if frequency == "Day":
+                    self.goal_time.setText(f"{value} minutes remaining for the day")
+                else:
+                    self.goal_time.setText(f"{value} minutes remaining for the month")
+            else:
+                if goal_type == "Pages":
+                    if frequency == "Day":
+                        self.goal_time.setText(f"{value} pages remaining for the day")
+                    else:
+                        self.goal_time.setText(f"{value} pages remaining for the month")
+                else:
+                    self.goal_time.setText(f"{value}  remaining")
+            
+
+        else:
+            self.goal_time.setText("0:00")
+            
+
+    def open_goal_popup(self):
+        popup = GoalPopup(self)
+        popup.exec_()
+
+    def show_message(self, message):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Message")
+        dialog_layout = QVBoxLayout()
+        dialog.setLayout(dialog_layout)
+
+        message_label = QLabel(message)
+        message_label.setAlignment(Qt.AlignCenter)
+        dialog_layout.addWidget(message_label)
+
+        ok_button = QPushButton("OK")
+        ok_button.clicked.connect(dialog.accept)
+        dialog_layout.addWidget(ok_button)
+
+        dialog.exec_()
 
     def on_book_click(self, index):
         self.clear_layout()
         book_details = QLabel("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.")
         book_details.setFont(QFont("Arial", 16))
         book_details.setAlignment(Qt.AlignCenter)
-        
+
         back_button = QPushButton("Back")
         back_button.clicked.connect(self.go_back)
 
@@ -124,7 +218,7 @@ class MyMainWindow(QMainWindow):
 main_window = None
 
 def create_app():
-    global main_window  
+    global main_window
     app = QApplication(sys.argv)
     main_window = MyMainWindow()
     main_window.show()
