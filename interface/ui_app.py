@@ -5,7 +5,8 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 import sys
-from target.target import update_goal, validate_time_input, get_current_goal
+from target.target import update_goal, validate_time_input, get_current_goal, save_reading_start
+from interface.reading_page import BookReaderApp  # Importă aplicația de citire
 
 class GoalPopup(QDialog):
     def __init__(self, parent=None):
@@ -106,7 +107,7 @@ class MyMainWindow(QMainWindow):
             item = QFrame()
             item.setStyleSheet("background-color: #ddd; border-radius: 5px;")
             item.setFixedSize(100, 140)
-            item.mousePressEvent = lambda event, index=i: self.on_book_click(index)
+            item.mousePressEvent = lambda event, index=i: self.on_book_click(index)  # Deschide aplicația de citire
             self.book_items.append(item)
             scroll_layout.addWidget(item)
 
@@ -160,6 +161,7 @@ class MyMainWindow(QMainWindow):
                     self.goal_time.setText(f"{value}  remaining")
             
 
+
         else:
             self.goal_time.setText("0:00")
             
@@ -184,18 +186,20 @@ class MyMainWindow(QMainWindow):
 
         dialog.exec_()
 
+
     def on_book_click(self, index):
-        self.clear_layout()
-        book_details = QLabel("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.")
-        book_details.setFont(QFont("Arial", 16))
-        book_details.setAlignment(Qt.AlignCenter)
+        """Deschide fereastra de citire, salvează timpul de început și închide fereastra principală."""
+        save_reading_start()  # Salvează timpul de început
+        self.book_reader = BookReaderApp()  # Creează o instanță a aplicației de citire
+        self.book_reader.go_home_signal.connect(self.open_main_window)  # Conectează semnalul
+        self.book_reader.show()  # Arată fereastra de citire
+        self.close()  # Închide fereastra principală
 
-        back_button = QPushButton("Back")
-        back_button.clicked.connect(self.go_back)
 
-        self.main_layout.addWidget(book_details)
-        self.main_layout.addWidget(back_button)
-        self.current_section = 'book_details'
+    def open_main_window(self):
+        """Redeschide fereastra principală."""
+        self.main_window = MyMainWindow()
+        self.main_window.show()
 
     def clear_layout(self):
         for i in reversed(range(self.main_layout.count())):
@@ -223,3 +227,4 @@ def create_app():
     main_window = MyMainWindow()
     main_window.show()
     return app
+
