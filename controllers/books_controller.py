@@ -25,6 +25,20 @@ def get_book(id: int) -> dict | None:
 
 """
 Inserts a book in db.
+
+book example:
+
+book = {
+    "id": 1,
+    "nume": "test",
+    "nr_pagini": 100,
+    "gen": "Drama",
+    "editura": "Editura",
+    "descriere: "....",
+    "cale_fisier": "cale/catre/fisier",
+    "cale_poza": "cale/catre/poza",
+    "is_disabled": 0
+}
 """
 def insert_book(book: dict):
     try:
