@@ -1,32 +1,30 @@
 from PyQt5.QtWidgets import QWidget, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QSizePolicy, QComboBox
 from PyQt5.QtCore import Qt, pyqtSignal
 from target.target import update_goal_time_spent, save_reading_end
+from controllers.epub_controller import get_epub_content
 
 class BookReaderApp(QWidget):
     # Definirea semnalului pentru a semnala că utilizatorul a apăsat pe Home
     go_home_signal = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, book):
         super().__init__()
 
         self.setWindowTitle("Minimal Book Reader")
         self.setGeometry(100, 100, 800, 600)
 
         # Simularea cărții cu texte împărțite în pagini
-        self.pages = [
-            "Page 1: Once upon a time, there was a small book...",
-            "Page 2: It started with a story of adventure...",
-            "Page 3: The journey continued through the lands...",
-            "Page 4: Finally, the story concluded with a moral lesson."
-        ]
+        content = get_epub_content(book["cale_fisier"])["content"]
+        self.pages = split_content_by_word_count(content, 30)
 
         self.current_page = 0  # Începe de la prima pagină
         self.bookmarks = []  # Lista pentru a salva marcajele
 
         # Crearea zonei de text pentru a arăta conținutul cărții
+        
         self.text_area = QTextEdit(self)
         self.text_area.setReadOnly(True)
-        self.text_area.setText(self.pages[self.current_page])
+        self.text_area.setText(self.pages[0])
         self.text_area.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         # Crearea butoanelor (Pagina anterioară, Următoare, Acasă, Sfârșit, Marcaj)
@@ -77,6 +75,7 @@ class BookReaderApp(QWidget):
         main_layout.addLayout(bookmark_layout)
 
         self.setLayout(main_layout)
+    
 
     def show_prev_page(self):
         if self.current_page > 0:
@@ -113,4 +112,11 @@ class BookReaderApp(QWidget):
             update_goal_time_spent(minutes_spent)
         self.go_home_signal.emit()
         self.close()  # Închide fereastra de citire
+    
+def split_content_by_word_count(content, words_per_page):
+    # Împărțim conținutul în cuvinte
+    words = content.split('\n')
+    # Grupăm cuvintele în pagini
+    pages = [' '.join(words[i:i + words_per_page]) for i in range(0, len(words), words_per_page)]
+    return pages
         

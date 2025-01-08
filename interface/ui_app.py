@@ -245,7 +245,7 @@ class MyMainWindow(QMainWindow):
         save_reading_start()
 
         # Creăm instanța aplicației de citire
-        self.book_reader = BookReaderApp()  # Transmite obiectul book către aplicația de citire
+        self.book_reader = BookReaderApp(book)  # Transmite obiectul book către aplicația de citire
 
         # Conectăm semnalul pentru întoarcerea la fereastra principală
         self.book_reader.go_home_signal.connect(self.open_main_window)
