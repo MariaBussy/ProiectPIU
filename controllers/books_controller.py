@@ -8,7 +8,7 @@ SELECT * FROM books;
 def get_books() -> list:
     books = Book.select()
     if books is None:
-        return None
+        return []
     return [model_to_dict(book) for book in books]
 
 """
