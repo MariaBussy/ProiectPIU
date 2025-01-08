@@ -2,10 +2,12 @@ from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout,
     QWidget, QScrollArea, QFrame, QPushButton, QDialog, QLineEdit, QComboBox
 )
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt
 import sys
-from target.target import update_goal, validate_time_input, get_current_goal
+from controllers.books_controller import get_books
+from target.target import update_goal, validate_time_input, get_current_goal, save_reading_start
+from interface.reading_page import BookReaderApp  # Importă aplicația de citire
 
 class GoalPopup(QDialog):
     def __init__(self, parent=None):
@@ -77,20 +79,21 @@ class MyMainWindow(QMainWindow):
         self.title.setAlignment(Qt.AlignCenter)
         self.main_layout.addWidget(self.title)
 
-        self.books_section = self.create_horizontal_section("Your Books", 10)
+        books = get_books()
+        self.books_section = self.create_horizontal_section("Your Books", books)
         self.main_layout.addWidget(self.books_section)
 
         self.goal_section = self.create_reading_goal_section()
         self.main_layout.addWidget(self.goal_section)
 
-        self.recommendations_section = self.create_horizontal_section("You may enjoy...", 8)
+        self.recommendations_section = self.create_horizontal_section_for_recomandations("You may enjoy...",10)
         self.main_layout.addWidget(self.recommendations_section)
 
         self.update_goal_display()
 
         self.current_section = None
 
-    def create_horizontal_section(self, title, num_items):
+    def create_horizontal_section_for_recomandations(self,title,num_items):
         section_layout = QVBoxLayout()
         section_title = QLabel(title)
         section_title.setFont(QFont("Arial", 16))
@@ -106,7 +109,7 @@ class MyMainWindow(QMainWindow):
             item = QFrame()
             item.setStyleSheet("background-color: #ddd; border-radius: 5px;")
             item.setFixedSize(100, 140)
-            item.mousePressEvent = lambda event, index=i: self.on_book_click(index)
+            item.mousePressEvent = lambda event, index=i: self.on_book_click(index)  # Deschide aplicația de citire
             self.book_items.append(item)
             scroll_layout.addWidget(item)
 
@@ -116,6 +119,55 @@ class MyMainWindow(QMainWindow):
         section_widget = QWidget()
         section_widget.setLayout(section_layout)
         return section_widget
+
+
+
+    def create_horizontal_section(self, title, books):
+        section_layout = QVBoxLayout()
+        section_title = QLabel(title)
+        section_title.setFont(QFont("Arial", 16))
+        section_layout.addWidget(section_title)
+
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_content = QWidget()
+        scroll_layout = QHBoxLayout(scroll_content)
+
+        for book in books:  # Renunțăm la enumerate și iterăm direct asupra cărților
+            item = QFrame()
+            item.setStyleSheet("background-color: #ddd; border-radius: 5px;")
+            item.setFixedSize(120, 180)  # Dimensiuni pentru a arăta imaginea
+
+            layout = QVBoxLayout(item)
+
+            # Adăugăm imaginea
+            if book.get("cale_poza"):
+                print(book["cale_poza"])
+                pixmap = QPixmap(book["cale_poza"])
+                image_label = QLabel()
+                image_label.setPixmap(pixmap.scaled(100, 140, Qt.KeepAspectRatio))
+                layout.addWidget(image_label)
+
+            # Adăugăm titlul cărții
+            title_label = QLabel(book["nume"])
+            title_label.setAlignment(Qt.AlignCenter)
+            title_label.setStyleSheet("font-size: 12px;")
+            layout.addWidget(title_label)
+
+            item.setLayout(layout)
+            scroll_layout.addWidget(item)
+
+            # Adăugăm evenimentul de clic
+            item.mousePressEvent = lambda event, book=book: self.on_book_click(book)
+
+        scroll_content.setLayout(scroll_layout)
+        scroll_area.setWidget(scroll_content)
+        section_layout.addWidget(scroll_area)
+        section_widget = QWidget()
+        section_widget.setLayout(section_layout)
+        return section_widget
+
+
 
     def create_reading_goal_section(self):
         goal_widget = QWidget()
@@ -160,6 +212,7 @@ class MyMainWindow(QMainWindow):
                     self.goal_time.setText(f"{value}  remaining")
             
 
+
         else:
             self.goal_time.setText("0:00")
             
@@ -184,18 +237,31 @@ class MyMainWindow(QMainWindow):
 
         dialog.exec_()
 
-    def on_book_click(self, index):
-        self.clear_layout()
-        book_details = QLabel("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.")
-        book_details.setFont(QFont("Arial", 16))
-        book_details.setAlignment(Qt.AlignCenter)
 
-        back_button = QPushButton("Back")
-        back_button.clicked.connect(self.go_back)
+    def on_book_click(self, book):
+        """Deschide fereastra de citire, salvează timpul de început și închide fereastra principală."""
 
-        self.main_layout.addWidget(book_details)
-        self.main_layout.addWidget(back_button)
-        self.current_section = 'book_details'
+        # Salvăm timpul de început
+        save_reading_start()
+
+        # Creăm instanța aplicației de citire
+        self.book_reader = BookReaderApp()  # Transmite obiectul book către aplicația de citire
+
+        # Conectăm semnalul pentru întoarcerea la fereastra principală
+        self.book_reader.go_home_signal.connect(self.open_main_window)
+
+        # Arătăm fereastra de citire
+        self.book_reader.show()
+
+        # Închidem fereastra principală
+        self.close()
+
+
+
+    def open_main_window(self):
+        """Redeschide fereastra principală."""
+        self.main_window = MyMainWindow()
+        self.main_window.show()
 
     def clear_layout(self):
         for i in reversed(range(self.main_layout.count())):
@@ -223,3 +289,4 @@ def create_app():
     main_window = MyMainWindow()
     main_window.show()
     return app
+

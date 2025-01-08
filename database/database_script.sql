@@ -1,4 +1,3 @@
-
 -- tabel carte
 CREATE TABLE IF NOT EXISTS carti (
     id int AUTO_INCREMENT PRIMARY KEY,
