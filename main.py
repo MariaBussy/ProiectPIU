@@ -7,9 +7,15 @@ from controllers.epub_controller import *
 from interface.ui_app import create_app
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget
 
+from controllers import epub_controller
+
 if __name__ == "__main__":
     print("Autori: ", get_authors())
     print("Carti: ", get_books())
+
+    val = process_epub("blanchard-a-dear-little-girl.epub")
+    print(val)
+
     app = create_app()
     sys.exit(app.exec_())
 
