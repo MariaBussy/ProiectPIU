@@ -8,6 +8,7 @@ import sys
 from controllers.books_controller import get_books
 from target.target import update_goal, validate_time_input, get_current_goal, save_reading_start
 from interface.reading_page import BookReaderApp  # Importă aplicația de citire
+from recommandation.recomm_system import RecommendationSystem
 
 class GoalPopup(QDialog):
     def __init__(self, parent=None):
@@ -86,14 +87,15 @@ class MyMainWindow(QMainWindow):
         self.goal_section = self.create_reading_goal_section()
         self.main_layout.addWidget(self.goal_section)
 
-        self.recommendations_section = self.create_horizontal_section_for_recomandations("You may enjoy...",10)
+        self.recommendations_count=5
+        self.recommendations_section = self.create_horizontal_section_for_recomandations("You may enjoy...", books)
         self.main_layout.addWidget(self.recommendations_section)
 
         self.update_goal_display()
 
         self.current_section = None
 
-    def create_horizontal_section_for_recomandations(self,title,num_items):
+    def create_horizontal_section_for_recomandations(self, title, books):
         section_layout = QVBoxLayout()
         section_title = QLabel(title)
         section_title.setFont(QFont("Arial", 16))
@@ -105,13 +107,49 @@ class MyMainWindow(QMainWindow):
         scroll_layout = QHBoxLayout(scroll_content)
 
         self.book_items = []
-        for i in range(num_items):
-            item = QFrame()
-            item.setStyleSheet("background-color: #ddd; border-radius: 5px;")
-            item.setFixedSize(100, 140)
-            item.mousePressEvent = lambda event, index=i: self.on_book_click(index)  # Deschide aplicația de citire
-            self.book_items.append(item)
-            scroll_layout.addWidget(item)
+
+        try:
+            # Extract book titles and generate recommendations
+            book_titles = [book["nume"] for book in books]
+            system = RecommendationSystem()
+            recommended_data = system.recommend_books(book_titles)
+            print(recommended_data)
+
+            # If no recommendations returned, handle it
+            if not recommended_data:
+                raise Exception("No dataset")
+
+            # Create book items based on recommendations
+            for book in recommended_data:
+                item = QFrame()
+                item.setStyleSheet("background-color: #ddd; border-radius: 5px;")
+                item.setFixedSize(120, 180)
+
+                layout = QVBoxLayout(item)
+
+                pixmap = QPixmap('./Photos/default.png')
+                image_label = QLabel()
+                image_label.setPixmap(pixmap.scaled(100, 140, Qt.KeepAspectRatio))
+                layout.addWidget(image_label)
+
+                title_label = QLabel(book["title"])
+                title_label.setAlignment(Qt.AlignCenter)
+                title_label.setStyleSheet("font-size: 12px;")
+                title_label.setWordWrap(True)  # Enable word wrapping
+                title_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+                layout.addWidget(title_label)
+
+                item.setLayout(layout)
+                scroll_layout.addWidget(item)
+
+        except Exception as e:
+            if str(e) == "No dataset":
+                message_label = QLabel("This functionality is not available at the moment")
+                message_label.setFont(QFont("Arial", 18))
+                message_label.setStyleSheet("color: gray; font-weight: bold; text-align: center;")
+                scroll_layout.addWidget(message_label)
+            else:
+                print(f"Caught an exception: {e}")
 
         scroll_content.setLayout(scroll_layout)
         scroll_area.setWidget(scroll_content)
@@ -119,8 +157,6 @@ class MyMainWindow(QMainWindow):
         section_widget = QWidget()
         section_widget.setLayout(section_layout)
         return section_widget
-
-
 
     def create_horizontal_section(self, title, books):
         section_layout = QVBoxLayout()
