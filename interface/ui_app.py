@@ -7,6 +7,7 @@ from PyQt5.QtCore import Qt
 import sys
 from controllers.books_controller import get_books
 from target.target import update_goal, validate_time_input, get_current_goal, save_reading_start
+from interface.addFile_page import AddFileWindow
 from interface.reading_page import BookReaderApp  # Importă aplicația de citire
 from recommandation.recomm_system import RecommendationSystem
 
@@ -75,6 +76,29 @@ class MyMainWindow(QMainWindow):
         central_widget.setLayout(self.main_layout)
         self.setCentralWidget(central_widget)
 
+        top_bar_layout = QHBoxLayout()
+        self.new_window_button = QPushButton("Add New Book")
+        self.new_window_button.clicked.connect(self.open_addFile_window)
+        self.new_window_button.setMinimumSize(100, 40)
+        self.new_window_button.setStyleSheet("""
+            QPushButton {
+                font-size: 16px;
+                padding: 10px;
+                background-color: #ccc;
+                border: none;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #bbb;
+            }
+        """)
+        top_bar_layout.addWidget(self.new_window_button, alignment=Qt.AlignLeft)
+
+        top_bar_widget = QWidget()
+        top_bar_widget.setLayout(top_bar_layout)
+        self.main_layout.addWidget(top_bar_widget)
+
+
         self.title = QLabel("All You Can Read")
         self.title.setFont(QFont("Arial", 20))
         self.title.setAlignment(Qt.AlignCenter)
@@ -94,6 +118,12 @@ class MyMainWindow(QMainWindow):
         self.update_goal_display()
 
         self.current_section = None
+
+    def open_addFile_window(self):
+        """Deschide noua fereastră."""
+        self.new_window = AddFileWindow(self)
+        self.new_window.files_added.connect(self.refresh_books_list)
+        self.new_window.show()
 
     def create_horizontal_section_for_recomandations(self, title, books):
         section_layout = QVBoxLayout()
@@ -316,6 +346,15 @@ class MyMainWindow(QMainWindow):
             self.goal_section.show()
             self.recommendations_section.show()
             self.current_section = None
+
+    def refresh_books_list(self):
+            # Închidem fereastra curentă
+        self.close()
+
+        # Creăm o instanță nouă a ferestrei și o deschidem
+        new_window = MyMainWindow()  # Asigură-te că folosești numele clasei ferestrei tale
+        new_window.show()
+
 
 main_window = None
 

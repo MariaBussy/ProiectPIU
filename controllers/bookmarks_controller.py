@@ -1,4 +1,3 @@
-
 from database.models import Bookmark
 from playhouse.shortcuts import model_to_dict
 

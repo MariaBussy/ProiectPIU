@@ -18,3 +18,4 @@ try:
 except Exception as e:
     print("[Database] Error:", e)
     exit(1)
+
