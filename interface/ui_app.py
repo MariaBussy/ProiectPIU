@@ -218,6 +218,8 @@ class MyMainWindow(QMainWindow):
             title_label = QLabel(book["nume"])
             title_label.setAlignment(Qt.AlignCenter)
             title_label.setStyleSheet("font-size: 12px;")
+            title_label.setWordWrap(True)  # Enable word wrapping
+            title_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
             layout.addWidget(title_label)
 
             item.setLayout(layout)

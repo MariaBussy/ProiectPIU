@@ -146,7 +146,7 @@ class AddFileWindow(QDialog):
 
             # Copiem fișierul EPUB în directorul Books și salvăm calea relativă în baza de date
             epub_filename = os.path.basename(self.selected_epub)
-            epub_path = os.path.join("Books", epub_filename)
+            epub_path = os.path.join("books", epub_filename)
             shutil.copy(self.selected_epub, epub_path)  # Copiem fișierul EPUB în folderul Books
             book_data["cale_fisier"] = epub_path  # Salvăm calea relativă în baza de date
 
