@@ -10,6 +10,7 @@ from target.target import update_goal, validate_time_input, get_current_goal, sa
 from interface.addFile_page import AddFileWindow
 from interface.reading_page import BookReaderApp  # Importă aplicația de citire
 from recommandation.recomm_system import RecommendationSystem
+import webbrowser
 
 class GoalPopup(QDialog):
     def __init__(self, parent=None):
@@ -172,6 +173,8 @@ class MyMainWindow(QMainWindow):
                 item.setLayout(layout)
                 scroll_layout.addWidget(item)
 
+                item.mousePressEvent = lambda event, book=book: self.on_recommendation_click(book)
+
         except Exception as e:
             if str(e) == "No dataset":
                 message_label = QLabel("This functionality is not available at the moment")
@@ -187,6 +190,10 @@ class MyMainWindow(QMainWindow):
         section_widget = QWidget()
         section_widget.setLayout(section_layout)
         return section_widget
+
+    def on_recommendation_click(self, book):
+        """Opens the book's preview link in the web browser."""
+        webbrowser.open(book['preview_link'])
 
     def create_horizontal_section(self, title, books):
         section_layout = QVBoxLayout()
