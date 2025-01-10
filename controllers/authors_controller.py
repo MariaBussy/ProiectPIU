@@ -1,5 +1,4 @@
-
-from database.models import Author
+from database.models import Author, Book_Author
 from playhouse.shortcuts import model_to_dict
 
 """
@@ -28,8 +27,11 @@ Inserts an author in db.
 """
 def insert_author(author: dict):
     try:
-        inserted_author = inserted_author.create(**author)
-        return model_to_dict(author)
+        # Creează autorul folosind modelul Author
+        inserted_author = Author.create(**author)
+        
+        # Returnează un dicționar cu datele autorului
+        return model_to_dict(inserted_author)
     except Exception as e:
         print("[Error]", e)
         return None
@@ -42,3 +44,19 @@ def delete_author(id: int):
         return "Nu exista aceast autor."
 
     return Author.delete().where(Author.id == id).execute()
+
+def get_author_by_name(author_name: str) -> dict | None:
+    try:
+        author = Author.select().where(Author.nume == author_name).first()
+        if author:
+            return model_to_dict(author)
+        return None
+    except Exception as e:
+        print("[Error]", e)
+        return None
+    
+def insert_book_author(book_id: int, author_id: int):
+    try:
+        Book_Author.create(id_carte=book_id, id_autor=author_id)
+    except Exception as e:
+        print("[Error]", e)

@@ -6,11 +6,11 @@ from tika import parser
 processes a epub file and returns a dict with Book data.
 """
 def process_epub(
-            file_path: str, 
-            genre: str | None = None, 
-            file_image_path: str | None = None,
-            avg_words_per_page: int = 250
-            ) -> list:
+        file_path: str, 
+        genre: str | None = None, 
+        file_image_path: str | None = None,
+        avg_words_per_page: int = 250
+        ) -> tuple:
     
     if file_path is None:
         raise Exception("File path is None.")
@@ -48,6 +48,7 @@ def process_epub(
     }
 
     return (book, author)
+
 
 def get_epub_content(file_path: str)-> dict:
     if file_path is None:

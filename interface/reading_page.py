@@ -16,7 +16,7 @@ class BookReaderApp(QWidget):
         # Simularea cărții cu texte împărțite în pagini
         content = get_epub_content(book["cale_fisier"])["content"]
         #self.pages = split_content_by_word_count(content, 30)
-        self.pages = paginate_content(content, 500)
+        self.pages = paginate_content(content, 2000)
 
         self.current_page = 0  # Începe de la prima pagină
         self.bookmarks = []  # Lista pentru a salva marcajele
@@ -113,13 +113,6 @@ class BookReaderApp(QWidget):
             update_goal_time_spent(minutes_spent)
         self.go_home_signal.emit()
         self.close()  # Închide fereastra de citire
-    
-def split_content_by_word_count(content, words_per_page):
-    # Împărțim conținutul în cuvinte
-    words = content.split('\n')
-    # Grupăm cuvintele în pagini
-    pages = [' '.join(words[i:i + words_per_page]) for i in range(0, len(words), words_per_page)]
-    return pages
 
 
 def paginate_content(content: str, chars_per_page: int) -> list:
