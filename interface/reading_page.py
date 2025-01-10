@@ -16,7 +16,7 @@ class BookReaderApp(QWidget):
         # Simularea cărții cu texte împărțite în pagini
         content = get_epub_content(book["cale_fisier"])["content"]
         #self.pages = split_content_by_word_count(content, 30)
-        self.pages = paginate_content(content, 2000)
+        self.pages = paginate_content(content, 1500)
 
         self.current_page = 0  # Începe de la prima pagină
         self.bookmarks = []  # Lista pentru a salva marcajele
@@ -117,7 +117,8 @@ class BookReaderApp(QWidget):
 
 def paginate_content(content: str, chars_per_page: int) -> list:
     """
-    Paginates the content while preserving whitespace and alignment.
+    Paginates the content while preserving whitespace and alignment,
+    but removes leading and trailing whitespace.
 
     Args:
         content (str): The text content to paginate.
@@ -129,13 +130,16 @@ def paginate_content(content: str, chars_per_page: int) -> list:
     if not content or chars_per_page <= 0:
         raise ValueError("Content must not be empty and chars_per_page must be greater than zero.")
 
+    # Elimina spațiile albe de la începutul și sfârșitul conținutului
+    content = content.strip()
+
     pages = []
     current_page = []
     current_char_count = 0
 
     for line in content.splitlines(keepends=True):
         if current_char_count + len(line) > chars_per_page:
-            # If the current line exceeds the page limit, create a new page
+            # Dacă linia curentă depășește limita paginii, se creează o nouă pagină
             pages.append("".join(current_page))
             current_page = []
             current_char_count = 0
@@ -143,7 +147,7 @@ def paginate_content(content: str, chars_per_page: int) -> list:
         current_page.append(line)
         current_char_count += len(line)
 
-    # Add the last page if it has content
+    # Adăugăm ultima pagină dacă are conținut
     if current_page:
         pages.append("".join(current_page))
 
