@@ -1,7 +1,9 @@
 from PyQt5.QtWidgets import QWidget, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QSizePolicy, QComboBox
 from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QFont
 from target.target import update_goal_time_spent, save_reading_end
 from controllers.epub_controller import get_epub_content
+
 
 class BookReaderApp(QWidget):
     # Definirea semnalului pentru a semnala că utilizatorul a apăsat pe Home
@@ -11,22 +13,31 @@ class BookReaderApp(QWidget):
         super().__init__()
 
         self.setWindowTitle("Minimal Book Reader")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 1000, 970)
 
         # Simularea cărții cu texte împărțite în pagini
         content = get_epub_content(book["cale_fisier"])["content"]
-        #self.pages = split_content_by_word_count(content, 30)
         self.pages = paginate_content(content, 1500)
 
         self.current_page = 0  # Începe de la prima pagină
         self.bookmarks = []  # Lista pentru a salva marcajele
 
         # Crearea zonei de text pentru a arăta conținutul cărții
-        
         self.text_area = QTextEdit(self)
         self.text_area.setReadOnly(True)
         self.text_area.setText(self.pages[0])
         self.text_area.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.text_area.setStyleSheet("""
+            QTextEdit {
+                background-color: #ffffff;
+                color: #000000;
+                font-family: 'Georgia';
+                font-size: 14px;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+        """)
 
         # Crearea butoanelor (Pagina anterioară, Următoare, Acasă, Sfârșit, Marcaj)
         self.prev_button = QPushButton("Previous Page")
@@ -35,10 +46,38 @@ class BookReaderApp(QWidget):
         self.end_button = QPushButton("End")
         self.bookmark_button = QPushButton("Bookmark")
 
+        # Setarea stilului pentru butoane
+        button_style = """
+            QPushButton {
+                font-size: 14px;
+                padding: 10px;
+                background-color: #6c757d;
+                color: #ffffff;
+                border: none;
+                border-radius: 5px;
+                transition: background-color 0.3s ease;
+            }
+            QPushButton:hover {
+                background-color: #5a6268;
+            }
+        """
+        for button in [self.prev_button, self.next_button, self.home_button, self.end_button, self.bookmark_button]:
+            button.setStyleSheet(button_style)
+
         # Crearea combo box-ului pentru a afișa marcajele
         self.bookmark_combobox = QComboBox(self)
         self.bookmark_combobox.addItem("Select Bookmark")  # Placeholder
         self.bookmark_combobox.currentIndexChanged.connect(self.load_bookmark)
+        self.bookmark_combobox.setStyleSheet("""
+            QComboBox {
+                font-size: 14px;
+                padding: 5px;
+                background-color: #343a40;
+                color: #ffffff;
+                border: 1px solid #6c757d;
+                border-radius: 5px;
+            }
+        """)
 
         # Conectarea butoanelor la funcții
         self.prev_button.clicked.connect(self.show_prev_page)
@@ -75,8 +114,19 @@ class BookReaderApp(QWidget):
         bookmark_layout.addWidget(self.bookmark_combobox)
         main_layout.addLayout(bookmark_layout)
 
+        # Aplicarea stilului general
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #212529;
+                color: #ffffff;
+            }
+            QLabel {
+                font-family: 'Arial';
+                font-size: 14px;
+            }
+        """)
+
         self.setLayout(main_layout)
-    
 
     def show_prev_page(self):
         if self.current_page > 0:
@@ -143,7 +193,7 @@ def paginate_content(content: str, chars_per_page: int) -> list:
             pages.append("".join(current_page))
             current_page = []
             current_char_count = 0
-        
+
         current_page.append(line)
         current_char_count += len(line)
 

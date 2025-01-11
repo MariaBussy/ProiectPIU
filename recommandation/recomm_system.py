@@ -61,6 +61,7 @@ class RecommendationSystem:
     def recommend_books(self, input_titles, top_n=3):
         if not input_titles:
             return self.recommend_random(top_n)
+
         # Prepare data for similarity computation
         combined_texts = [book['combined'] for book in self.books_data]
         vectorizer = TfidfVectorizer().fit_transform(combined_texts)
@@ -72,7 +73,6 @@ class RecommendationSystem:
         target_indices = [
             i for i, book in enumerate(self.books_data) if book['title'] in normalized_input_titles
         ]
-        # print(target_indices)
         if not target_indices:
             print(f"No matching books found for input titles: {normalized_input_titles}")
             return self.recommend_random(top_n)
@@ -85,13 +85,21 @@ class RecommendationSystem:
         similarity_scores = sorted(
             similarity_scores, key=lambda x: x[1], reverse=True
         )
-        similarity_scores = [
-            (self.books_data[i]['title'], self.books_data[i]['author'], self.books_data[i]['preview_link'])
-            for i, score in similarity_scores
-            if self.books_data[i]['title'] not in input_titles
-        ]
 
-        # Get top N recommendations
-        recommendations = similarity_scores[:top_n]
-        recommendations_dict = [{'title': title, 'author': author, 'preview_link': preview_link} for title, author, preview_link in recommendations]
+        # To avoid repeating book titles, we'll keep track of recommended titles
+        recommended_titles = set()
+        recommendations = []
+
+        for i, score in similarity_scores:
+            book = self.books_data[i]
+            if book['title'] not in input_titles and book['title'] not in recommended_titles:
+                recommended_titles.add(book['title'])
+                recommendations.append((book['title'], book['author'], book['preview_link']))
+
+            if len(recommendations) >= top_n:
+                break
+
+        # Format recommendations into the final dictionary format
+        recommendations_dict = [{'title': title, 'author': author, 'preview_link': preview_link}
+                                for title, author, preview_link in recommendations]
         return recommendations_dict
