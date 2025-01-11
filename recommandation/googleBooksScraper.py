@@ -2,33 +2,26 @@ import json
 
 import requests
 
-# Function to load data from a JSON file
 def load_json_data(file_path):
     with open(file_path, 'r') as file:
         data = json.load(file)
     return data
 
-# Example usage
-file_path = 'books.json'  # Specify the path to your JSON file
+file_path = 'books.json' 
 data = load_json_data(file_path)
 
-# Function to make GET request to Google Books API
 def get_book_info(book_name, author_name, api_key):
     query = f"{book_name}+inauthor:{author_name}"
     url = f"https://www.googleapis.com/books/v1/volumes?q={query}&key={api_key}"
 
-    # Send the GET request
     response = requests.get(url)
 
-    # Check if the request was successful (status code 200)
     if response.status_code == 200:
-        # Parse and return the JSON response
         return response.json()
     else:
-        # If request failed, print the error
         return f"Error: {response.status_code}"
 
-api_key = "AIzaSyBx5Psf4RSTDW8Br_dWkc8618JkFIMkFYQ"  # Replace with your Google Books API key
+api_key = "AIzaSyBx5Psf4RSTDW8Br_dWkc8618JkFIMkFYQ"  
 
 complete_info=[]
 for sample_book in data:

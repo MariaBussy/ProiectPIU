@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout,
-    QWidget, QScrollArea, QFrame, QPushButton, QDialog, QLineEdit, QComboBox, QSizePolicy
+    QWidget, QScrollArea, QFrame, QPushButton, QDialog, QLineEdit, QComboBox, QSizePolicy, QMessageBox
 )
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt
@@ -86,7 +86,6 @@ class MyMainWindow(QMainWindow):
         self.main_layout.setContentsMargins(20, 20, 20, 20)
         self.main_layout.setSpacing(15)
 
-        # Top bar
         top_bar_layout = QHBoxLayout()
         self.new_window_button = QPushButton("Add New Book")
         self.new_window_button.clicked.connect(self.open_addFile_window)
@@ -95,34 +94,47 @@ class MyMainWindow(QMainWindow):
         self.new_window_button.setStyleSheet(self.button_style())
         top_bar_layout.addWidget(self.new_window_button, alignment=Qt.AlignLeft)
 
+        top_bar_layout.addStretch(1)
+
+        self.about_button = QPushButton("About")
+        self.about_button.setMinimumSize(100, 40)
+        self.about_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.about_button.setStyleSheet(self.button_style())
+        self.about_button.clicked.connect(self.show_about_popup)
+        top_bar_layout.addWidget(self.about_button, alignment=Qt.AlignRight)
+
         top_bar_widget = QWidget()
         top_bar_widget.setLayout(top_bar_layout)
         self.main_layout.addWidget(top_bar_widget)
 
-        # Title
         self.title = QLabel("All You Can Read")
-        title_font = QFont("Georgia", 32)  # Creează un font de tip Georgia, dimensiunea 24
-        title_font.setItalic(True)  # Aplică stilul italic
-        self.title.setFont(title_font)  # Setează fontul la QLabel
+        title_font = QFont("Georgia", 32)  
+        title_font.setItalic(True)  
+        self.title.setFont(title_font)  
         self.title.setAlignment(Qt.AlignCenter)
         self.title.setStyleSheet("color: #ffffff;")
         self.main_layout.addWidget(self.title)
 
-        # Books Section
+        self.goal_section = self.create_reading_goal_section()
+        self.main_layout.addWidget(self.goal_section)
+
         books = get_books()
         self.books_section = self.create_horizontal_section("Your Books", books)
         self.main_layout.addWidget(self.books_section)
 
-        # Goal Section
-        self.goal_section = self.create_reading_goal_section()
-        self.main_layout.addWidget(self.goal_section)
-
-        # Recommendations Section
         self.recommendations_count = 5
         self.recommendations_section = self.create_horizontal_section_for_recommendations("You may enjoy...", books)
         self.main_layout.addWidget(self.recommendations_section)
 
         self.update_goal_display()
+
+    def show_about_popup(self):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Information)  
+        msg_box.setWindowTitle("About")  
+        msg_box.setText("All you can read\nCreated by:\nBusaga Maria, Ciosnar Dragos-Alexandru and Vieru Iosif")  
+        msg_box.setStandardButtons(QMessageBox.Ok)  
+        msg_box.exec_()  
 
     def open_addFile_window(self):
         self.new_window = AddFileWindow(self)
@@ -235,25 +247,42 @@ class MyMainWindow(QMainWindow):
     def create_reading_goal_section(self):
         goal_widget = QWidget()
         goal_layout = QVBoxLayout(goal_widget)
+
         goal_label = QLabel("Your Goal")
         goal_label.setFont(QFont("Arial", 18))
         goal_label.setAlignment(Qt.AlignCenter)
-        goal_label.setStyleSheet("color: #f5f5f5;")
+        goal_label.setStyleSheet("color: #f5f5f5; padding: 10px;")  
         goal_layout.addWidget(goal_label)
+
+        content_widget = QWidget()
+        content_layout = QVBoxLayout(content_widget)
 
         self.goal_time = QLabel("0:00")
         self.goal_time.setFont(QFont("Arial", 12))
         self.goal_time.setAlignment(Qt.AlignCenter)
-        self.goal_time.setStyleSheet("color: #28a745; font-weight: bold;")
-        goal_layout.addWidget(self.goal_time)
+        self.goal_time.setStyleSheet("color: #ffffff; font-weight: bold; padding: 15px;")
+        content_layout.addWidget(self.goal_time)
 
         set_goal_button = QPushButton("Set Goal")
         set_goal_button.setStyleSheet(self.button_style())
         set_goal_button.clicked.connect(self.open_goal_popup)
-        goal_layout.addWidget(set_goal_button)
+        content_layout.addWidget(set_goal_button)
+
+        content_widget.setStyleSheet("""
+            background-color: #222;
+            border: 2px solid #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+        """)
+
+        goal_layout.addWidget(content_widget)
 
         goal_layout.setAlignment(Qt.AlignCenter)
+
+        goal_widget.setLayout(goal_layout)
+
         return goal_widget
+
 
     def update_goal_display(self):
         goal = get_current_goal()

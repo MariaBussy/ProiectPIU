@@ -2,9 +2,6 @@ import epub_metadata
 import tika
 from tika import parser
 
-"""
-processes a epub file and returns a dict with Book data.
-"""
 def process_epub(
         file_path: str, 
         genre: str | None = None, 

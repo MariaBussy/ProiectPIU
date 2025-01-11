@@ -1,12 +1,7 @@
-# Iosif Vieru 1409A
-# 30.10.2024
-
 from peewee import (
     Model, IntegerField, CharField, BooleanField, ForeignKeyField,
     CompositeKey, SqliteDatabase
 )
-
-#from database.database import db
 
 db = SqliteDatabase('database.db')
 
