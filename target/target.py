@@ -40,6 +40,7 @@ def save_reading_start():
     with open(TIME_FILE, "w") as file:
         json.dump({"start_time": start_time}, file)
 
+
 def save_reading_end():
     if not os.path.exists(TIME_FILE):
         return None
@@ -60,6 +61,17 @@ def update_goal_time_spent(minutes_spent):
         return None
 
     goal["value"] = max(0, goal["value"] - minutes_spent)  
+    with open(GOAL_FILE, "w") as file:
+        json.dump([goal], file, indent=4)
+
+    return goal["value"]
+
+def update_goal_pages_spent(pages_spent):
+    goal = get_current_goal()
+    if not goal or goal["goal_type"] == "time":
+        return None
+
+    goal["value"] = max(0, goal["value"] - pages_spent)  
     with open(GOAL_FILE, "w") as file:
         json.dump([goal], file, indent=4)
 
