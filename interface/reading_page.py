@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QSizePolicy, QComboBox
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont
-from target.target import update_goal_time_spent, save_reading_end
+from target.target import update_goal_time_spent, save_reading_end, update_goal_pages_spent
 from controllers.epub_controller import get_epub_content
 from controllers.bookmarks_controller import get_bookmark, get_last_page_bookmark, insert_bookmark, get_bookmarks_for_book,update_last_bookmark_default_page
 
@@ -19,6 +19,7 @@ class BookReaderApp(QWidget):
         self.pages = paginate_content(content, 1500)
 
         last_bookmark=get_last_page_bookmark(self.book["id"]) if get_last_page_bookmark(self.book["id"]) else None
+        self.last_bookmark = last_bookmark
         self.current_page = last_bookmark["pagina_default"] if last_bookmark else 0
 
         existing_bookmarks = get_bookmarks_for_book(self.book["id"])
@@ -173,7 +174,7 @@ class BookReaderApp(QWidget):
         existing_bookmarks = get_bookmarks_for_book(self.book["id"])
         if any(b["pagina_user"] == self.current_page + 1 for b in existing_bookmarks[1:]):
             print(f"Page {self.current_page + 1} is already bookmarked.")
-            return  # Nu adaugă un bookmark duplicat
+            return  
 
         bookmark_data = {
             "id_carte": self.book["id"],
@@ -204,6 +205,10 @@ class BookReaderApp(QWidget):
         minutes_spent = save_reading_end()
         if minutes_spent is not None:
             update_goal_time_spent(minutes_spent)
+        value = self.current_page - self.last_bookmark["pagina_default"]
+        pages_spent = value if self.last_bookmark and value > 0 else 0
+        if pages_spent is not None:
+            update_goal_pages_spent(pages_spent)
 
         self.go_home_signal.emit()
         self.close()
