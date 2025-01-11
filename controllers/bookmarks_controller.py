@@ -19,7 +19,7 @@ Inserts a bookmark in db.
 """
 def insert_bookmark(bookmark: dict):
     try:
-        inserted_bookmark = inserted_bookmark.create(**bookmark)
+        inserted_bookmark = Bookmark.create(**bookmark)
         return model_to_dict(inserted_bookmark)
     except Exception as e:
         print("[Error]", e)
@@ -33,3 +33,11 @@ def delete_bookmark(id: int):
         return "Nu exista aceast autor."
 
     return Bookmark.delete().where(Bookmark.id == id).execute()
+
+def get_bookmarks_for_book(book_id: int) -> list:
+    if book_id is not None and book_id <= 0:
+        return []
+    
+    # Selectează toate marcajele pentru cartea respectivă
+    bookmarks = Bookmark.select().where(Bookmark.id_carte == book_id)
+    return [model_to_dict(bookmark) for bookmark in bookmarks]

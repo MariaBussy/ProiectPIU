@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QWidget, QTextEdit, QPushButton, QVBoxLayout, QHBoxL
 from PyQt5.QtCore import Qt, pyqtSignal
 from target.target import update_goal_time_spent, save_reading_end
 from controllers.epub_controller import get_epub_content
+from controllers.bookmarks_controller import get_bookmark, insert_bookmark, get_bookmarks_for_book
 
 class BookReaderApp(QWidget):
     # Definirea semnalului pentru a semnala că utilizatorul a apăsat pe Home
@@ -10,6 +11,7 @@ class BookReaderApp(QWidget):
     def __init__(self, book):
         super().__init__()
 
+        self.book = book
         self.setWindowTitle("Minimal Book Reader")
         self.setGeometry(100, 100, 800, 600)
 
@@ -76,34 +78,56 @@ class BookReaderApp(QWidget):
         main_layout.addLayout(bookmark_layout)
 
         self.setLayout(main_layout)
+        self.load_existing_bookmarks()
     
 
     def show_prev_page(self):
         if self.current_page > 0:
             self.current_page -= 1
             self.text_area.setText(self.pages[self.current_page])
+            self.bookmark_combobox.setCurrentIndex(0)  # Resetează combo box-ul
 
     def show_next_page(self):
         if self.current_page < len(self.pages) - 1:
             self.current_page += 1
             self.text_area.setText(self.pages[self.current_page])
+            self.bookmark_combobox.setCurrentIndex(0)  # Resetează combo box-ul
 
     def show_end(self):
         self.current_page = len(self.pages) - 1
         self.text_area.setText(self.pages[self.current_page])
+        self.bookmark_combobox.setCurrentIndex(0)  # Resetează combo box-ul
+
+    
+    def load_existing_bookmarks(self):
+        """Încărcați marcajele pentru cartea curentă din baza de date."""
+        bookmarks = get_bookmarks_for_book(self.book["id"])  # ID-ul cărții
+        if bookmarks:
+            for bookmark in bookmarks:
+                self.bookmarks.append(bookmark)
+                self.bookmark_combobox.addItem(f"Page {bookmark['pagina_user']}")
 
     def add_bookmark(self):
-        bookmark_name = f"Bookmark {self.current_page + 1}"
-        if bookmark_name not in self.bookmarks:
-            self.bookmarks.append(bookmark_name)
-            self.bookmark_combobox.addItem(bookmark_name)
-        print(f"Bookmark added at Page {self.current_page + 1}")
+        """Adaugă un marcaj în baza de date."""
+        bookmark_data = {
+            "id_carte": self.book["id"],
+            "pagina_default": 0,
+            "pagina_user": self.current_page + 1,
+        }
+        result = insert_bookmark(bookmark_data)
+        if result:
+            self.bookmarks.append(result)
+            self.bookmark_combobox.addItem(f"Page {result['pagina_user']}")
+            print(f"Bookmark added at Page {self.current_page + 1}")
+        else:
+            print("Failed to add bookmark.")
 
     def load_bookmark(self):
+        """Încarcă pagina selectată din marcaj."""
         selected_index = self.bookmark_combobox.currentIndex()
-        if selected_index > 0:
-            selected_page = selected_index - 1
-            self.current_page = selected_page
+        if selected_index > 0:  # Primul element este placeholder
+            bookmark = self.bookmarks[selected_index - 1]  # Index în lista bookmark-urilor
+            self.current_page = bookmark["pagina_user"] - 1
             self.text_area.setText(self.pages[self.current_page])
 
     def go_home(self):
