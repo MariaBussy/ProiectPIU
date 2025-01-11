@@ -15,7 +15,6 @@ class RecommendationSystem:
         self.books_data = self.load_booksdata()
 
     @staticmethod
-    # Function to load data from a JSON file
     def load_json(file_path):
         try:
             with open(file_path, "r", encoding="utf-8") as file:
@@ -36,14 +35,11 @@ class RecommendationSystem:
 
     def load_booksdata(self):
         books_data=[]
-        # Ensure data is not empty
         if not self.books_dataset:
             print("No data available to make recommendations. Load a dataset!")
             raise Exception("No dataset")
 
-        # Combine genre and description fields with weights
         for book in self.books_dataset:
-            # Normalize the description length
             truncated_description = book['description'][:self.max_description_length]
             weighted_genre = ' '.join(book['genre']) * self.genre_weight
             weighted_description = truncated_description * self.description_weight
@@ -57,19 +53,16 @@ class RecommendationSystem:
         random_books = random.sample(self.books_data, min(top_n, len(self.books_data)))
         return [{'title': book['title'], 'author': book['author'], 'preview_link': book['preview_link']} for book in random_books]
 
-    # Function to recommend books based on multiple given titles
     def recommend_books(self, input_titles, top_n=3):
         if not input_titles:
             return self.recommend_random(top_n)
 
-        # Prepare data for similarity computation
         combined_texts = [book['combined'] for book in self.books_data]
         vectorizer = TfidfVectorizer().fit_transform(combined_texts)
         similarity_matrix = cosine_similarity(vectorizer)
 
         normalized_input_titles = [self.normalize_text(title) for title in input_titles]
 
-        # Find indices of input books
         target_indices = [
             i for i, book in enumerate(self.books_data) if book['title'] in normalized_input_titles
         ]
@@ -77,16 +70,13 @@ class RecommendationSystem:
             print(f"No matching books found for input titles: {normalized_input_titles}")
             return self.recommend_random(top_n)
 
-        # Average similarity scores across all input books
         avg_similarity_scores = np.mean(similarity_matrix[target_indices], axis=0)
 
-        # Sort scores and exclude the input books
         similarity_scores = list(enumerate(avg_similarity_scores))
         similarity_scores = sorted(
             similarity_scores, key=lambda x: x[1], reverse=True
         )
 
-        # To avoid repeating book titles, we'll keep track of recommended titles
         recommended_titles = set()
         recommendations = []
 
@@ -99,7 +89,6 @@ class RecommendationSystem:
             if len(recommendations) >= top_n:
                 break
 
-        # Format recommendations into the final dictionary format
         recommendations_dict = [{'title': title, 'author': author, 'preview_link': preview_link}
                                 for title, author, preview_link in recommendations]
         return recommendations_dict

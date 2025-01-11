@@ -1,6 +1,3 @@
-# Iosif Vieru 1409A
-# 30.10.2024
-
 from peewee import MySQLDatabase, SqliteDatabase
 from sys import exit
 

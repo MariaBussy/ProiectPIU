@@ -27,10 +27,8 @@ Inserts an author in db.
 """
 def insert_author(author: dict):
     try:
-        # Creează autorul folosind modelul Author
         inserted_author = Author.create(**author)
         
-        # Returnează un dicționar cu datele autorului
         return model_to_dict(inserted_author)
     except Exception as e:
         print("[Error]", e)

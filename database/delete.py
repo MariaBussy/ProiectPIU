@@ -1,29 +1,21 @@
 from peewee import SqliteDatabase
 from models import Book, Author, Book_Author, Bookmark
 
-# Conectează-te la baza de date
 db = SqliteDatabase('database.db')
 
 def clear_database():
-    """
-    Golește toate tabelele din baza de date.
-    """
     try:
-        # Începe tranzacția
         with db.atomic():
-            # Șterge datele din tabelele cu relații (Book_Author și Bookmark) mai întâi pentru a evita erori de chei străine
-            Bookmark.delete().execute()  # Șterge toate bookmark-urile
-            Book_Author.delete().execute()  # Șterge toate asocierile Book-Author
+            Bookmark.delete().execute()  
+            Book_Author.delete().execute()  
             
-            # Apoi șterge datele din tabelele Book și Author
-            Book.delete().execute()  # Șterge toate cărțile
-            Author.delete().execute()  # Șterge toți autorii
+            Book.delete().execute() 
+            Author.delete().execute() 
         
-        print("Baza de date a fost golită cu succes.")
+        print("Baza de date a fost golita cu succes.")
     
     except Exception as e:
-        print(f"A apărut o eroare: {e}")
+        print(f"A aparut o eroare: {e}")
 
-# Apelează funcția pentru a goli baza de date
 if __name__ == "__main__":
     clear_database()

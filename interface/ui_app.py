@@ -86,7 +86,6 @@ class MyMainWindow(QMainWindow):
         self.main_layout.setContentsMargins(20, 20, 20, 20)
         self.main_layout.setSpacing(15)
 
-        # Top bar
         top_bar_layout = QHBoxLayout()
         self.new_window_button = QPushButton("Add New Book")
         self.new_window_button.clicked.connect(self.open_addFile_window)
@@ -95,10 +94,8 @@ class MyMainWindow(QMainWindow):
         self.new_window_button.setStyleSheet(self.button_style())
         top_bar_layout.addWidget(self.new_window_button, alignment=Qt.AlignLeft)
 
-        # Adăugăm un stretch pentru a împinge butonul "About" în partea dreaptă
         top_bar_layout.addStretch(1)
 
-        # Butonul "About" pe partea dreaptă
         self.about_button = QPushButton("About")
         self.about_button.setMinimumSize(100, 40)
         self.about_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -110,25 +107,21 @@ class MyMainWindow(QMainWindow):
         top_bar_widget.setLayout(top_bar_layout)
         self.main_layout.addWidget(top_bar_widget)
 
-        # Title
         self.title = QLabel("All You Can Read")
-        title_font = QFont("Georgia", 32)  # Creează un font de tip Georgia, dimensiunea 24
-        title_font.setItalic(True)  # Aplică stilul italic
-        self.title.setFont(title_font)  # Setează fontul la QLabel
+        title_font = QFont("Georgia", 32)  
+        title_font.setItalic(True)  
+        self.title.setFont(title_font)  
         self.title.setAlignment(Qt.AlignCenter)
         self.title.setStyleSheet("color: #ffffff;")
         self.main_layout.addWidget(self.title)
 
-        # Goal Section
         self.goal_section = self.create_reading_goal_section()
         self.main_layout.addWidget(self.goal_section)
 
-        # Books Section
         books = get_books()
         self.books_section = self.create_horizontal_section("Your Books", books)
         self.main_layout.addWidget(self.books_section)
 
-        # Recommendations Section
         self.recommendations_count = 5
         self.recommendations_section = self.create_horizontal_section_for_recommendations("You may enjoy...", books)
         self.main_layout.addWidget(self.recommendations_section)
@@ -136,13 +129,12 @@ class MyMainWindow(QMainWindow):
         self.update_goal_display()
 
     def show_about_popup(self):
-        # Crearea unui QMessageBox pentru a afișa mesajul
         msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Information)  # Setăm tipul iconiței (Informație)
-        msg_box.setWindowTitle("About")  # Titlul ferestrei pop-up
-        msg_box.setText("All you can read\nCreated by:\nBusaga Maria, Ciosnar Dragos-Alexandru and Vieru Iosif")  # Mesajul
-        msg_box.setStandardButtons(QMessageBox.Ok)  # Butonul de OK
-        msg_box.exec_()  # Afișează pop-up-ul
+        msg_box.setIcon(QMessageBox.Information)  
+        msg_box.setWindowTitle("About")  
+        msg_box.setText("All you can read\nCreated by:\nBusaga Maria, Ciosnar Dragos-Alexandru and Vieru Iosif")  
+        msg_box.setStandardButtons(QMessageBox.Ok)  
+        msg_box.exec_()  
 
     def open_addFile_window(self):
         self.new_window = AddFileWindow(self)
@@ -256,31 +248,26 @@ class MyMainWindow(QMainWindow):
         goal_widget = QWidget()
         goal_layout = QVBoxLayout(goal_widget)
 
-        # Titlu: "Your Goal"
         goal_label = QLabel("Your Goal")
         goal_label.setFont(QFont("Arial", 18))
         goal_label.setAlignment(Qt.AlignCenter)
-        goal_label.setStyleSheet("color: #f5f5f5; padding: 10px;")  # Doar styling pentru text
+        goal_label.setStyleSheet("color: #f5f5f5; padding: 10px;")  
         goal_layout.addWidget(goal_label)
 
-        # Crearea unui widget separat pentru conținutul cu bordură
         content_widget = QWidget()
         content_layout = QVBoxLayout(content_widget)
 
-        # Timpul Obiectivului
         self.goal_time = QLabel("0:00")
         self.goal_time.setFont(QFont("Arial", 12))
         self.goal_time.setAlignment(Qt.AlignCenter)
         self.goal_time.setStyleSheet("color: #ffffff; font-weight: bold; padding: 15px;")
         content_layout.addWidget(self.goal_time)
 
-        # Butonul Set Goal
         set_goal_button = QPushButton("Set Goal")
         set_goal_button.setStyleSheet(self.button_style())
         set_goal_button.clicked.connect(self.open_goal_popup)
         content_layout.addWidget(set_goal_button)
 
-        # Setarea bordurii pentru widget-ul de conținut
         content_widget.setStyleSheet("""
             background-color: #222;
             border: 2px solid #ffffff;
@@ -288,17 +275,13 @@ class MyMainWindow(QMainWindow):
             padding: 20px;
         """)
 
-        # Adăugăm widget-ul de conținut în layout-ul principal
         goal_layout.addWidget(content_widget)
 
-        # Alinierea întregului conținut
         goal_layout.setAlignment(Qt.AlignCenter)
 
-        # Setăm layout-ul pe goal_widget
         goal_widget.setLayout(goal_layout)
 
         return goal_widget
-
 
 
     def update_goal_display(self):
