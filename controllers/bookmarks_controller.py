@@ -41,3 +41,23 @@ def get_bookmarks_for_book(book_id: int) -> list:
     # Selectează toate marcajele pentru cartea respectivă
     bookmarks = Bookmark.select().where(Bookmark.id_carte == book_id)
     return [model_to_dict(bookmark) for bookmark in bookmarks]
+
+def update_last_bookmark_default_page(book_id: int, default_page: int):
+    """
+    Actualizează câmpul `pagina_default` al ultimului bookmark pentru o carte specifică.
+    """
+    try:
+        # Selectează ultimul bookmark pentru cartea respectivă
+        last_bookmark = (Bookmark
+                         .select()
+                         .where(Bookmark.id_carte == book_id)
+                         .order_by(Bookmark.id.desc())
+                         .first())
+        
+        if last_bookmark:
+            # Actualizează pagina default
+            last_bookmark.pagina_default = default_page
+            last_bookmark.save()
+    except Exception as e:
+        print("[Error updating bookmark]", e)
+

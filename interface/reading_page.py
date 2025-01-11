@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QWidget, QTextEdit, QPushButton, QVBoxLayout, QHBoxL
 from PyQt5.QtCore import Qt, pyqtSignal
 from target.target import update_goal_time_spent, save_reading_end
 from controllers.epub_controller import get_epub_content
-from controllers.bookmarks_controller import get_bookmark, insert_bookmark, get_bookmarks_for_book
+from controllers.bookmarks_controller import get_bookmark, insert_bookmark, get_bookmarks_for_book,update_last_bookmark_default_page
 
 class BookReaderApp(QWidget):
     # Definirea semnalului pentru a semnala că utilizatorul a apăsat pe Home
@@ -20,14 +20,17 @@ class BookReaderApp(QWidget):
         #self.pages = split_content_by_word_count(content, 30)
         self.pages = paginate_content(content, 1500)
 
-        self.current_page = 0  # Începe de la prima pagină
+        # Obține ultimul bookmark pentru carte
+        last_bookmark = get_bookmarks_for_book(book["id"])[-1] if get_bookmarks_for_book(book["id"]) else None
+        self.current_page = last_bookmark["pagina_default"] if last_bookmark else 0
+
         self.bookmarks = []  # Lista pentru a salva marcajele
 
         # Crearea zonei de text pentru a arăta conținutul cărții
         
         self.text_area = QTextEdit(self)
         self.text_area.setReadOnly(True)
-        self.text_area.setText(self.pages[0])
+        self.text_area.setText(self.pages[self.current_page])
         self.text_area.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         # Crearea butoanelor (Pagina anterioară, Următoare, Acasă, Sfârșit, Marcaj)
@@ -109,6 +112,11 @@ class BookReaderApp(QWidget):
 
     def add_bookmark(self):
         """Adaugă un marcaj în baza de date."""
+        existing_bookmarks = get_bookmarks_for_book(self.book["id"])
+        if any(b["pagina_user"] == self.current_page + 1 for b in existing_bookmarks):
+            print(f"Page {self.current_page + 1} is already bookmarked.")
+            return  # Nu adaugă un bookmark duplicat
+    
         bookmark_data = {
             "id_carte": self.book["id"],
             "pagina_default": 0,
@@ -131,12 +139,35 @@ class BookReaderApp(QWidget):
             self.text_area.setText(self.pages[self.current_page])
 
     def go_home(self):
-        """Salvează timpul de sfârșit, actualizează target-ul și emite semnalul."""
+        """Adaugă un bookmark nou dacă nu există sau actualizează ultimul bookmark."""
+        # Verifică dacă există un bookmark
+        existing_bookmarks = get_bookmarks_for_book(self.book["id"])
+        
+        if not existing_bookmarks:
+            # Dacă nu există niciun bookmark, adaugă unul nou
+            new_bookmark = {
+                "id_carte": self.book["id"],
+                "pagina_default": self.current_page,
+                "pagina_user": self.current_page + 1,
+            }
+            if insert_bookmark(new_bookmark):
+                print(f"Created a new bookmark at page {self.current_page}")
+        else:
+            # Dacă există, actualizează `pagina_default` al ultimului bookmark
+            update_last_bookmark_default_page(self.book["id"], self.current_page)
+            print(f"Updated last bookmark to page {self.current_page}")
+
+        # Salvează timpul de citire și actualizează ținta
         minutes_spent = save_reading_end()
         if minutes_spent is not None:
             update_goal_time_spent(minutes_spent)
+
+        # Emiterea semnalului și închiderea ferestrei
         self.go_home_signal.emit()
-        self.close()  # Închide fereastra de citire
+        self.close()
+
+
+
 
 
 def paginate_content(content: str, chars_per_page: int) -> list:
