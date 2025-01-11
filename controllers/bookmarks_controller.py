@@ -42,22 +42,27 @@ def get_bookmarks_for_book(book_id: int) -> list:
     bookmarks = Bookmark.select().where(Bookmark.id_carte == book_id)
     return [model_to_dict(bookmark) for bookmark in bookmarks]
 
-def update_last_bookmark_default_page(book_id: int, default_page: int):
+def get_last_page_bookmark(book_id:int):
+    last_read_bookmark = Bookmark.select().where(Bookmark.id_carte == book_id).first()
+    print(model_to_dict(last_read_bookmark))
+    return model_to_dict(last_read_bookmark)
+
+def update_last_bookmark_default_page(book_id: int, current_page: int):
     """
-    Actualizează câmpul `pagina_default` al ultimului bookmark pentru o carte specifică.
+    Actualizează câmpul `pagina_default` și `pagina_user` al marcajului 'Last Read Page'.
     """
     try:
-        # Selectează ultimul bookmark pentru cartea respectivă
-        last_bookmark = (Bookmark
-                         .select()
-                         .where(Bookmark.id_carte == book_id)
-                         .order_by(Bookmark.id.desc())
-                         .first())
-        
-        if last_bookmark:
-            # Actualizează pagina default
-            last_bookmark.pagina_default = default_page
-            last_bookmark.save()
+        # Selectează marcajul 'Last Read Page' pentru cartea respectivă
+        last_read_bookmark = Bookmark.select().where(Bookmark.id_carte == book_id).first()
+
+        if last_read_bookmark:
+            # Actualizează pagina default și pagina utilizator
+            last_read_bookmark.pagina_default = current_page
+            last_read_bookmark.pagina_user = current_page + 1  # Indexare de la 1
+            last_read_bookmark.save()
+
+            last_read_bookmark = Bookmark.select().where(Bookmark.id_carte == book_id).first()
+            print(f"Updated last page with: {last_read_bookmark.pagina_default}")
     except Exception as e:
-        print("[Error updating bookmark]", e)
+        print("[Error updating 'Last Read Page' bookmark]", e)
 
