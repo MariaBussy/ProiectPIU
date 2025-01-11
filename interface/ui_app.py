@@ -108,14 +108,14 @@ class MyMainWindow(QMainWindow):
         self.title.setStyleSheet("color: #ffffff;")
         self.main_layout.addWidget(self.title)
 
+        # Goal Section
+        self.goal_section = self.create_reading_goal_section()
+        self.main_layout.addWidget(self.goal_section)
+
         # Books Section
         books = get_books()
         self.books_section = self.create_horizontal_section("Your Books", books)
         self.main_layout.addWidget(self.books_section)
-
-        # Goal Section
-        self.goal_section = self.create_reading_goal_section()
-        self.main_layout.addWidget(self.goal_section)
 
         # Recommendations Section
         self.recommendations_count = 5
@@ -235,25 +235,51 @@ class MyMainWindow(QMainWindow):
     def create_reading_goal_section(self):
         goal_widget = QWidget()
         goal_layout = QVBoxLayout(goal_widget)
+
+        # Titlu: "Your Goal"
         goal_label = QLabel("Your Goal")
         goal_label.setFont(QFont("Arial", 18))
         goal_label.setAlignment(Qt.AlignCenter)
-        goal_label.setStyleSheet("color: #f5f5f5;")
+        goal_label.setStyleSheet("color: #f5f5f5; padding: 10px;")  # Doar styling pentru text
         goal_layout.addWidget(goal_label)
 
+        # Crearea unui widget separat pentru conținutul cu bordură
+        content_widget = QWidget()
+        content_layout = QVBoxLayout(content_widget)
+
+        # Timpul Obiectivului
         self.goal_time = QLabel("0:00")
         self.goal_time.setFont(QFont("Arial", 12))
         self.goal_time.setAlignment(Qt.AlignCenter)
-        self.goal_time.setStyleSheet("color: #28a745; font-weight: bold;")
-        goal_layout.addWidget(self.goal_time)
+        self.goal_time.setStyleSheet("color: #ffffff; font-weight: bold; padding: 15px;")
+        content_layout.addWidget(self.goal_time)
 
+        # Butonul Set Goal
         set_goal_button = QPushButton("Set Goal")
         set_goal_button.setStyleSheet(self.button_style())
         set_goal_button.clicked.connect(self.open_goal_popup)
-        goal_layout.addWidget(set_goal_button)
+        content_layout.addWidget(set_goal_button)
 
+        # Setarea bordurii pentru widget-ul de conținut
+        content_widget.setStyleSheet("""
+            background-color: #222;
+            border: 2px solid #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+        """)
+
+        # Adăugăm widget-ul de conținut în layout-ul principal
+        goal_layout.addWidget(content_widget)
+
+        # Alinierea întregului conținut
         goal_layout.setAlignment(Qt.AlignCenter)
+
+        # Setăm layout-ul pe goal_widget
+        goal_widget.setLayout(goal_layout)
+
         return goal_widget
+
+
 
     def update_goal_display(self):
         goal = get_current_goal()

@@ -35,7 +35,7 @@ class AddFileWindow(QDialog):
 
         self.epub_label = QLabel("No EPUB selected")
         self.epub_label.setAlignment(Qt.AlignCenter)
-        self.epub_label.setStyleSheet("font-size: 12px; color: #555;")
+        self.epub_label.setStyleSheet("font-size: 12px; color: #999;")
         epub_layout.addWidget(self.epub_label)
 
         buttons_layout.addLayout(epub_layout)
@@ -49,7 +49,7 @@ class AddFileWindow(QDialog):
 
         self.photo_label = QLabel("No Photo selected")
         self.photo_label.setAlignment(Qt.AlignCenter)
-        self.photo_label.setStyleSheet("font-size: 12px; color: #555;")
+        self.photo_label.setStyleSheet("font-size: 12px; color: #999;")
         photo_layout.addWidget(self.photo_label)
 
         buttons_layout.addLayout(photo_layout)
@@ -91,39 +91,31 @@ class AddFileWindow(QDialog):
     def get_button_style(self):
         """Return the style for the buttons."""
         return """
-        QPushButton {
-            font-size: 14px;
-            padding: 8px 16px;
-            background-color: #e0e0e0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        QPushButton:hover {
-            background-color: #d6d6d6;
-        }
-        QPushButton:pressed {
-            background-color: #c8c8c8;
-        }
+            QPushButton {
+                font-size: 14px;
+                padding: 10px;
+                background-color: #6c757d;
+                color: #ffffff;
+                border: none;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #5a6268;
+            }
         """
 
     def get_add_button_style(self):
         """Return the style for the ADD button."""
-        return """
-        QPushButton {
-            font-size: 16px;
-            padding: 10px 20px;
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        QPushButton:hover {
-            background-color: #45a049;
-        }
-        QPushButton:pressed {
-            background-color: #3e8e41;
-        }
-        """
+        return """ 
+            QPushButton {
+                font-size: 14px; padding: 8px;
+                background-color: #007bff; color: #fff;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #0056b3;
+            }"""
+    
     def add_file(self):   
         try:
             book_data, author_data = process_epub(self.selected_epub)

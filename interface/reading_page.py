@@ -13,7 +13,7 @@ class BookReaderApp(QWidget):
         super().__init__()
 
         self.book = book
-        self.setWindowTitle("Minimal Book Reader")
+        self.setWindowTitle(book["nume"])
         self.setGeometry(100, 100, 1000, 970)
 
         # Simularea cărții cu texte împărțite în pagini
@@ -59,14 +59,26 @@ class BookReaderApp(QWidget):
                 color: #ffffff;
                 border: none;
                 border-radius: 5px;
-                transition: background-color 0.3s ease;
             }
             QPushButton:hover {
                 background-color: #5a6268;
             }
         """
-        for button in [self.prev_button, self.next_button, self.home_button, self.end_button, self.bookmark_button]:
+
+        button_vertical_style = """ 
+            QPushButton {
+                font-size: 14px; padding: 8px;
+                background-color: #007bff; color: #fff;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #0056b3;
+            }"""
+        
+        for button in [self.prev_button, self.next_button]:
             button.setStyleSheet(button_style)
+        for button in [self.home_button, self.end_button, self.bookmark_button]:
+            button.setStyleSheet(button_vertical_style)
 
         # Crearea combo box-ului pentru a afișa marcajele
         self.bookmark_combobox = QComboBox(self)
@@ -75,9 +87,8 @@ class BookReaderApp(QWidget):
         self.bookmark_combobox.setStyleSheet("""
             QComboBox {
                 font-size: 14px;
-                padding: 5px;
-                background-color: #343a40;
-                color: #ffffff;
+                padding: 8px;
+                background-color: #007bff; color: #fff;
                 border: 1px solid #6c757d;
                 border-radius: 5px;
             }
@@ -101,6 +112,7 @@ class BookReaderApp(QWidget):
         menu_button_layout.addWidget(self.end_button)
         menu_button_layout.addWidget(self.home_button)
         menu_button_layout.addWidget(self.bookmark_button)
+        menu_button_layout.addWidget(self.bookmark_combobox)
 
         # Layout-ul principal al ferestrei
         main_layout = QVBoxLayout()
@@ -215,9 +227,6 @@ class BookReaderApp(QWidget):
         # Emiterea semnalului și închiderea ferestrei
         self.go_home_signal.emit()
         self.close()
-
-
-
 
 
 def paginate_content(content: str, chars_per_page: int) -> list:
