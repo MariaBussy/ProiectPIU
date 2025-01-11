@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout,
-    QWidget, QScrollArea, QFrame, QPushButton, QDialog, QLineEdit, QComboBox, QSizePolicy
+    QWidget, QScrollArea, QFrame, QPushButton, QDialog, QLineEdit, QComboBox, QSizePolicy, QMessageBox
 )
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt
@@ -95,6 +95,17 @@ class MyMainWindow(QMainWindow):
         self.new_window_button.setStyleSheet(self.button_style())
         top_bar_layout.addWidget(self.new_window_button, alignment=Qt.AlignLeft)
 
+        # Adăugăm un stretch pentru a împinge butonul "About" în partea dreaptă
+        top_bar_layout.addStretch(1)
+
+        # Butonul "About" pe partea dreaptă
+        self.about_button = QPushButton("About")
+        self.about_button.setMinimumSize(100, 40)
+        self.about_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.about_button.setStyleSheet(self.button_style())
+        self.about_button.clicked.connect(self.show_about_popup)
+        top_bar_layout.addWidget(self.about_button, alignment=Qt.AlignRight)
+
         top_bar_widget = QWidget()
         top_bar_widget.setLayout(top_bar_layout)
         self.main_layout.addWidget(top_bar_widget)
@@ -123,6 +134,15 @@ class MyMainWindow(QMainWindow):
         self.main_layout.addWidget(self.recommendations_section)
 
         self.update_goal_display()
+
+    def show_about_popup(self):
+        # Crearea unui QMessageBox pentru a afișa mesajul
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Information)  # Setăm tipul iconiței (Informație)
+        msg_box.setWindowTitle("About")  # Titlul ferestrei pop-up
+        msg_box.setText("All you can read\nCreated by:\nBusaga Maria, Ciosnar Dragos-Alexandru and Vieru Iosif")  # Mesajul
+        msg_box.setStandardButtons(QMessageBox.Ok)  # Butonul de OK
+        msg_box.exec_()  # Afișează pop-up-ul
 
     def open_addFile_window(self):
         self.new_window = AddFileWindow(self)
