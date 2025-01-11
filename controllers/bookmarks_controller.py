@@ -38,14 +38,18 @@ def get_bookmarks_for_book(book_id: int) -> list:
     if book_id is not None and book_id <= 0:
         return []
     
-    # Selectează toate marcajele pentru cartea respectivă
     bookmarks = Bookmark.select().where(Bookmark.id_carte == book_id)
     return [model_to_dict(bookmark) for bookmark in bookmarks]
 
-def get_last_page_bookmark(book_id:int):
+def get_last_page_bookmark(book_id: int):
+    
     last_read_bookmark = Bookmark.select().where(Bookmark.id_carte == book_id).first()
-    print(model_to_dict(last_read_bookmark))
-    return model_to_dict(last_read_bookmark)
+    
+    if last_read_bookmark:
+        return model_to_dict(last_read_bookmark)
+    else:
+        print("No bookmark found for the provided book_id")
+        return None  
 
 def update_last_bookmark_default_page(book_id: int, current_page: int):
     try:
